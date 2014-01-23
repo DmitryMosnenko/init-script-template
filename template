@@ -33,8 +33,13 @@ case "$1" in
     else
         echo "Starting $name"
         cd "$dir"
-        sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        echo $! > "$pid_file"
+    touch $pid_file
+    touch $stdout_log
+    touch $stderr_log
+    chown $user:$user $pid_file
+    chown $user:$user $stdout_log
+    chown $user:$user $stderr_log
+    su -s /bin/sh -c "$cmd > $stdout_log 2> $stderr_log & echo \$! > $pid_file" $user
         if ! is_running; then
             echo "Unable to start, see $stdout_log and $stderr_log"
             exit 1
